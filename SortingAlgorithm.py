@@ -25,7 +25,7 @@ class DrawInformation:
     TOP_OFFSET = 150
     SIDE_OFFSET = 100
 
-    def __init__(self, width=int, height=int, lst=list[int]):
+    def __init__(self, width, height, lst):
         self.width = width
         self.height = height
         self.lst = lst
@@ -37,7 +37,7 @@ class DrawInformation:
         self.start_x = None
 
         self.window = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("Sorting Algorithm Visulaizer")
+        pygame.display.set_caption("Sorting Algorithm Visualizer")
         self.set_list(lst)
 
     def set_list(self, lst):
@@ -50,7 +50,7 @@ class DrawInformation:
         self.start_x = self.SIDE_OFFSET // 2
 
 
-def draw(draw_info=DrawInformation, algo_name=str, ascending=bool):
+def draw(draw_info, algo_name, ascending):
     draw_info.window.fill(draw_info.BACKGROUND_COLOR)
 
     title = draw_info.LARGE_FONT.render(
@@ -69,8 +69,11 @@ def draw(draw_info=DrawInformation, algo_name=str, ascending=bool):
     pygame.display.update()
 
 
-def draw_list(draw_info=DrawInformation, color_positions={}, clear_bg=False):
+def draw_list(draw_info, color_positions=None, clear_bg=False):
     lst = draw_info.lst
+
+    if color_positions is None:
+        color_positions = {}
 
     if clear_bg:
         clear_rect = (draw_info.SIDE_OFFSET // 2, draw_info.TOP_OFFSET,
@@ -102,7 +105,7 @@ def generate_value_list(n, min_val, max_val):
     return lst
 
 
-def bubble_sort(draw_info=DrawInformation, ascending=True):
+def bubble_sort(draw_info, ascending=True):
     lst = draw_info.lst
 
     for i in range(len(lst) - 1):
