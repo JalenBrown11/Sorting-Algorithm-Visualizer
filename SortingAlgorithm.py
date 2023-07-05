@@ -46,7 +46,8 @@ class DrawInformation:
         self.max_val = max(lst)
 
         self.unit_width = round((self.width - self.SIDE_OFFSET) / len(lst))
-        self.unit_height = math.floor((self.height - self.TOP_OFFSET) / (self.max_val - self.min_val))
+        self.unit_height = math.floor(
+            (self.height - self.TOP_OFFSET) / (self.max_val - self.min_val))
         self.start_x = self.SIDE_OFFSET // 2
 
 
@@ -55,15 +56,18 @@ def draw(draw_info, algo_name, ascending):
 
     title = draw_info.LARGE_FONT.render(
         f"{algo_name} - {'Ascending' if ascending else 'Descending'}", 1, draw_info.GREEN)
-    draw_info.window.blit(title, (draw_info.width / 2 - title.get_width() / 2, 5))
+    draw_info.window.blit(
+        title, (draw_info.width / 2 - title.get_width() / 2, 5))
 
     controls = draw_info.FONT.render(
         "R - Reset | SPACE - Start Sorting | A - Ascending | D - Descending", 1, draw_info.BLACK)
-    draw_info.window.blit(controls, (draw_info.width / 2 - controls.get_width() / 2, 45))
+    draw_info.window.blit(
+        controls, (draw_info.width / 2 - controls.get_width() / 2, 45))
 
     sort = draw_info.FONT.render(
-        "I - Insertion Sort | B - Bubble sort", 1, draw_info.BLACK)
-    draw_info.window.blit(sort, (draw_info.width / 2 - sort.get_width() / 2, 75))
+        "I - Insertion Sort | B - Bubble sort | S - Selection sort", 1, draw_info.BLACK)
+    draw_info.window.blit(
+        sort, (draw_info.width / 2 - sort.get_width() / 2, 75))
 
     draw_list(draw_info)
     pygame.display.update()
@@ -78,18 +82,21 @@ def draw_list(draw_info, color_positions=None, clear_bg=False):
     if clear_bg:
         clear_rect = (draw_info.SIDE_OFFSET // 2, draw_info.TOP_OFFSET,
                       draw_info.width - draw_info.SIDE_OFFSET, draw_info.height - draw_info.TOP_OFFSET)
-        pygame.draw.rect(draw_info.window, draw_info.BACKGROUND_COLOR, clear_rect)
+        pygame.draw.rect(draw_info.window,
+                         draw_info.BACKGROUND_COLOR, clear_rect)
 
     for i, val in enumerate(lst):
         x = draw_info.start_x + i * draw_info.unit_width
-        y = draw_info.height - (val - draw_info.min_val) * draw_info.unit_height
+        y = draw_info.height - (val - draw_info.min_val) * \
+            draw_info.unit_height
 
         color = draw_info.GRADIENTS[i % 3]
 
         if i in color_positions:
             color = color_positions[i]
 
-        pygame.draw.rect(draw_info.window, color, (x, y, draw_info.unit_width, draw_info.unit_height * val))
+        pygame.draw.rect(draw_info.window, color, (x, y,
+                         draw_info.unit_width, draw_info.unit_height * val))
 
     if clear_bg:
         pygame.display.update()
@@ -115,8 +122,39 @@ def bubble_sort(draw_info, ascending=True):
 
             if (num1 > num2 and ascending) or (num1 < num2 and not ascending):
                 lst[j], lst[j + 1] = lst[j + 1], lst[j]
-                draw_list(draw_info, {j: draw_info.GREEN, j + 1: draw_info.RED}, True)
+                draw_list(draw_info, {j: draw_info.GREEN,
+                          j + 1: draw_info.RED}, True)
                 yield True
+
+    return lst
+
+
+def selection_sort(draw_info, ascending=True):
+    lst = draw_info.lst
+
+    if ascending:
+        for i in range(0, len(lst)):
+            min_idx = i
+            for j in range(i+1, len(lst)):
+                if lst[j] < lst[min_idx]:
+                    min_idx = j
+
+            lst[i], lst[min_idx] = lst[min_idx], lst[i]
+            draw_list(draw_info, {i: draw_info.GREEN,
+                      min_idx: draw_info.RED}, True)
+            yield True
+
+    if not ascending:
+        for i in range(len(lst)-1, 0, -1):
+            min_idx = i
+            for j in range(i-1, -1, -1):
+                if lst[j] < lst[min_idx]:
+                    min_idx = j
+
+            lst[i], lst[min_idx] = lst[min_idx], lst[i]
+            draw_list(draw_info, {i: draw_info.GREEN,
+                      min_idx: draw_info.RED}, True)
+            yield True
 
     return lst
 
@@ -137,7 +175,8 @@ def insertion_sort(draw_info, ascending=True):
             lst[i] = lst[i - 1]
             i = i - 1
             lst[i] = current
-            draw_list(draw_info, {i - 1: draw_info.GREEN, i: draw_info.RED}, True)
+            draw_list(draw_info, {i - 1: draw_info.GREEN,
+                      i: draw_info.RED}, True)
             yield True
 
     return lst
@@ -183,7 +222,8 @@ def main():
                 sorting = False
             elif event.key == K_SPACE and sorting is False:
                 sorting = True
-                sorting_algorithm_generator = sorting_algorithm(draw_info, ascending)
+                sorting_algorithm_generator = sorting_algorithm(
+                    draw_info, ascending)
             elif event.key == K_a and not sorting:
                 ascending = True
             elif event.key == K_d and not sorting:
@@ -194,6 +234,9 @@ def main():
             elif event.key == K_b and not sorting:
                 sorting_algorithm = bubble_sort
                 sorting_algo_name = "Bubble Sort"
+            elif event.key == K_s and not sorting:
+                sorting_algorithm = selection_sort
+                sorting_algo_name = "Selection Sort"
             elif event.key == K_ESCAPE:
                 run = False
 
